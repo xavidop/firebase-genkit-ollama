@@ -1,3 +1,5 @@
+![Header](./img/header.png)
+
 # Firebase Function using Genkit & Gemma with Ollama
 
 - [Firebase Function using Genkit \& Gemma with Ollama](#firebase-function-using-genkit--gemma-with-ollama)
@@ -9,7 +11,6 @@
   - [Code explanation](#code-explanation)
   - [Invoke the function locally](#invoke-the-function-locally)
   - [Deploy](#deploy)
-
 
 ## Introduction
 
