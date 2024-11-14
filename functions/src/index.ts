@@ -1,24 +1,20 @@
-import {generate} from "@genkit-ai/ai";
-import {configureGenkit} from "@genkit-ai/core";
+import {genkit, z } from "genkit";
 import {onFlow, noAuth} from "@genkit-ai/firebase/functions";
-
-import * as z from "zod";
-import {firebase} from "@genkit-ai/firebase";
 import {ollama} from "genkitx-ollama";
+import { logger } from 'genkit/logging';
 
-configureGenkit({
+const ai = genkit({
   plugins: [
-    firebase(),
     ollama({
       models: [{ name: 'gemma' }],
       serverAddress: 'http://127.0.0.1:11434', // default ollama local address
     }),
-  ],
-  logLevel: "debug",
-  enableTracingAndMetrics: true,
+  ]
 });
+logger.setLogLevel('debug');
 
 export const translatorFlow = onFlow(
+  ai,
   {
     name: "translatorFlow",
     inputSchema: z.object({ text: z.string() }),
@@ -29,7 +25,7 @@ export const translatorFlow = onFlow(
     const prompt =
       `Translate this ${toTranslate.text} to Spanish. Autodetect the language.`;
 
-    const llmResponse = await generate({
+    const llmResponse = await ai.generate({
       model: 'ollama/gemma',
       prompt: prompt,
       config: {
@@ -37,7 +33,7 @@ export const translatorFlow = onFlow(
       },
     });
 
-    return llmResponse.text();
+    return llmResponse.text;
   }
 );
 
