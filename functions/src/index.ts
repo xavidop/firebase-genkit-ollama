@@ -1,7 +1,7 @@
 import {genkit, z } from "genkit";
-import {onFlow, noAuth} from "@genkit-ai/firebase/functions";
 import {ollama} from "genkitx-ollama";
 import { logger } from 'genkit/logging';
+import { onCallGenkit } from "firebase-functions/https";
 
 const ai = genkit({
   plugins: [
@@ -13,13 +13,11 @@ const ai = genkit({
 });
 logger.setLogLevel('debug');
 
-export const translatorFlow = onFlow(
-  ai,
+export const translatorFlow = ai.defineFlow(
   {
     name: "translatorFlow",
     inputSchema: z.object({ text: z.string() }),
     outputSchema: z.string(),
-    authPolicy: noAuth(), // Not requiring authentication, but you can change this. It is highly recommended to require authentication for production use cases.
   },
   async (toTranslate) => {
     const prompt =
@@ -37,3 +35,6 @@ export const translatorFlow = onFlow(
   }
 );
 
+export const translatedFunction = onCallGenkit({
+  authPolicy: () => true, // Allow all users to call this function. Not recommended for production.
+}, translatorFlow);

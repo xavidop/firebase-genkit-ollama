@@ -22,9 +22,8 @@ This project uses the following technologies:
 3. Ollama
 
 This project uses the following Node.js Packages:
-1. `@genkit-ai/firebase`: Genkit Firebase SDK to be able to use Genkit in Firebase Functions
-2. `genkitx-ollama`: Genkit Ollama plugin to be able to use Ollama in Genkit
-3. `genkit`: Genkit AI Core SDK
+1. `genkitx-ollama`: Genkit Ollama plugin to be able to use Ollama in Genkit
+2. `genkit`: Genkit AI Core SDK
 
 ## Setup
 
@@ -74,13 +73,11 @@ logger.setLogLevel('debug');
 Then, we define the function, in the Gen AI Kit they call it Flows. a Flow is function with some additional characteristics: they are strongly typed, streamable, locally and remotely callable, and fully observable. Firebase Genkit provides CLI and Developer UI tooling for working with flows (running, debugging, etc):
 
 ```TypeScript
-export const translatorFlow = onFlow(
-  ai,
+export const translatorFlow = ai.defineFlow(
   {
     name: "translatorFlow",
     inputSchema: z.object({ text: z.string() }),
     outputSchema: z.string(),
-    authPolicy: noAuth(), // Not requiring authentication, but you can change this. It is highly recommended to require authentication for production use cases.
   },
   async (toTranslate) => {
     const prompt =
@@ -97,33 +94,23 @@ export const translatorFlow = onFlow(
     return llmResponse.text;
   }
 );
+
+export const translatorFlow = onCallGenkit({
+  authPolicy: () => true, // Allow all users to call this function. Not recommended for production.
+}, translatorFlow);
 ```
 
 As we saw above, we use Zod to define the input and output schema of the function. We also use the `generate` function from the Genkit SDK to generate the translation.
-
-We also have disabled the authentication for this function, but you can change this by changing the `authPolicy` property:
-```TypeScript
-firebaseAuth((user) => {
-  if (!user.email_verified) {
-    throw new Error('Verified email required to run flow');
-  }
-});
-```
-
-For the example above you will need to import the `firebaseAuth` function from the `@genkit-ai/firebase/auth` package:
-```TypeScript
-import { firebaseAuth } from '@genkit-ai/firebase/auth';
-```
 
 ## Invoke the function locally
 
 Now you can invoke the function by running `genkit flow:run translatorFlow '{"text":"hi"}'` in the terminal.
 
-You can also make a curl command by running `curl -X GET -H "Content-Type: application/json" -d '{"data": { "text": "hi" }}' http://127.0.0.1:5001/<firebase-project>/<region>/translatorFlow` in the terminal.
+You can also make a curl command by running `curl -X GET -H "Content-Type: application/json" -d '{"data": { "text": "hi" }}' http://127.0.0.1:5001/<firebase-project>/<region>/translatedFunction` in the terminal.
 
 For example:
 ```bash
-> curl -X GET -H "Content-Type: application/json" -d '{"data": { "text": "hi" }}' http://127.0.0.1:5001/action-helloworld/us-central1/translatorFlow
+> curl -X GET -H "Content-Type: application/json" -d '{"data": { "text": "hi" }}' http://127.0.0.1:5001/action-helloworld/us-central1/translatedFunction
 {"result":"Hola\n\nThe translation of \"hi\" to Spanish is \"Hola\"."}
 ```
 
