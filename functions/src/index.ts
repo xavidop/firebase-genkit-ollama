@@ -6,7 +6,7 @@ import { onCallGenkit } from "firebase-functions/https";
 const ai = genkit({
   plugins: [
     ollama({
-      models: [{ name: 'gemma2' }],
+      models: [{ name: 'gemma3n:e4b' }],
       serverAddress: 'http://127.0.0.1:11434', // default ollama local address
     }),
   ]
@@ -24,7 +24,7 @@ export const translatorFlow = ai.defineFlow(
       `Translate this ${toTranslate.text} to Spanish. Autodetect the language.`;
 
     const llmResponse = await ai.generate({
-      model: 'ollama/gemma2',
+      model: 'ollama/gemma3n:e4b',
       prompt: prompt,
       config: {
         temperature: 1,
