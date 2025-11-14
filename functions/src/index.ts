@@ -21,7 +21,7 @@ export const translatorFlow = ai.defineFlow(
   },
   async (toTranslate) => {
     const prompt =
-      `Translate this ${toTranslate.text} to Spanish. Autodetect the language.`;
+      `Translate this sentence "${toTranslate.text}" into Spanish. Autodetect the language.`;
 
     const llmResponse = await ai.generate({
       model: 'ollama/gemma3n:e4b',
